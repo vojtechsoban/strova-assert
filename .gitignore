@@ -3,9 +3,9 @@
 *.iml
 
 # dist
-actions.js
-index.js
-messages.js
+/actions.js
+/index.js
+/messages.js
 
 # Logs
 logs
