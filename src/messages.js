@@ -1,3 +1,4 @@
+export const DEFAULT = 'Assertion error';
 export const IS_NULL = 'Expression is not null';
 export const NOT_NULL = 'Expression is null';
 export const IS_EMPTY = 'Expression is not empty';

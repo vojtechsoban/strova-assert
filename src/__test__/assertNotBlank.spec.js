@@ -21,17 +21,22 @@ describe('Assert notBlank', () => {
     sandbox.restore();
   });
 
-  it('should log info with default message', () => {
+  it('should log error with default message', () => {
     notBlank(' ');
     expect(console.error).to.have.been.calledWith(NOT_BLANK);
   });
 
-  it('should log error with default message', () => {
-    notBlank(' ', undefined, logError);
+  it('should not log error with nullable=true', () => {
+    notBlank(' ', {nullable: true});
     expect(console.error).to.have.been.calledWith(NOT_BLANK);
   });
 
-  it('should log info with custom message', () => {
+  it('should log error with default message', () => {
+    notBlank(' ', logError);
+    expect(console.error).to.have.been.calledWith(NOT_BLANK);
+  });
+
+  it('should log error with custom message', () => {
     notBlank(' ', 'Custom message');
     expect(console.error).to.have.been.calledWith('Custom message');
   });

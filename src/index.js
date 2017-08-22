@@ -1,75 +1,75 @@
 import * as validation from 'strova-validation';
 import * as msg from './messages';
-import {logError, throwError} from "./actions";
+import {logError, throwError} from './actions';
+import * as actions from './actions';
 
-const config = {
-  defaultAction: process.env.NODE_ENV === 'production' ? logError : throwError
+const globalConfig = {
+  defaultAction: process.env.NODE_ENV === 'prod' || process.env.NODE_ENV === 'production' ?
+    logError : throwError
 };
 
 const setAction = action => {
-  config.defaultAction = action
+  globalConfig.defaultAction = action
 };
 
-const actionOrDefault = action => message => (action ? action : config.defaultAction)(message);
+const isNullable = (expression, config) => (config.nullable && isNull(expression));
 
-export const isNull = (arg, message = msg.IS_NULL, action = null) => {
-  if (!validation.isNull(arg)) {
-    actionOrDefault(action)(message);
+const actionOrDefault = action => message => (action ? action : globalConfig.defaultAction)(message);
+
+const execute = (fn, expression, config = {}, defaultMessage = msg.DEFAULT) => {
+  let message;
+  if (typeof config === 'string') {
+    message = config;
+    config = {};
+  } else if (config.message) {
+    message = config.message;
+  } else {
+    message = defaultMessage;
+  }
+
+  if (!fn(expression)) {
+    (config.action ? config.action : globalConfig.defaultAction)(message);
   }
 };
 
-export const notNull = (arg, message = msg.NOT_NULL, action = null) => {
-  if (!validation.notNull(arg)) {
-    actionOrDefault(action)(message);
-  }
+export const isNull = (arg, message = msg.IS_NULL, config = {}) => {
+  execute(validation.isNull, arg, configOrMessage, msg.IS_NULL);
 };
 
-export const isEmpty = (arg, message = msg.IS_EMPTY, action = null) => {
-  if (!validation.isEmpty(arg)) {
-    actionOrDefault(action)(message);
-  }
+export const notNull = (arg, configOrMessage) => {
+  execute(validation.notNull, arg, configOrMessage, msg.NOT_NULL);
 };
 
-export const notEmpty = (arg, message = msg.NOT_EMPTY, action = null) => {
-  if (!validation.notEmpty(arg)) {
-    actionOrDefault(action)(message);
-  }
+export const isEmpty = (arg, configOrMessage) => {
+  execute(validation.isEmpty, arg, configOrMessage, msg.IS_EMPTY);
 };
 
-export const isBlank = (arg, message = msg.IS_BLANK, action = null) => {
-  if (!validation.isBlank(arg)) {
-    actionOrDefault(action)(message);
-  }
+export const notEmpty = (arg, configOrMessage) => {
+  execute(validation.notEmpty, arg, configOrMessage, msg.NOT_EMPTY);
 };
 
-export const notBlank = (arg, message = msg.NOT_BLANK, action = null) => {
-  if (!validation.notBlank(arg)) {
-    actionOrDefault(action)(message);
-  }
+export const isBlank = (arg, configOrMessage) => {
+  execute(validation.isBlank, arg, configOrMessage, msg.IS_BLANK);
 };
 
-export const isNumber = (arg, message = msg.IS_NUMBER, action = null) => {
-  if (!validation.isNumber(arg)) {
-    actionOrDefault(action)(message);
-  }
+export const notBlank = (arg, configOrMessage) => {
+  execute(validation.notBlank, arg, configOrMessage, msg.NOT_BLANK);
 };
 
-export const isInteger = (arg, message = msg.IS_INTEGER, action = null) => {
-  if (!validation.isInteger(arg)) {
-    actionOrDefault(action)(message);
-  }
+export const isNumber = (arg, configOrMessage) => {
+  execute(validation.isNumber, arg, configOrMessage, msg.IS_NUMBER);
 };
 
-export const min = (arg, min, message = msg.MIN, action = null) => {
-  if (!validation.min(arg, min)) {
-    actionOrDefault(action)(message);
-  }
+export const isInteger = (arg, configOrMessage) => {
+  execute(validation.isInteger, arg, configOrMessage, msg.IS_INTEGER);
 };
 
-export const max = (arg, max, message = msg.MAX, action = null) => {
-  if (!validation.max(arg, max)) {
-    actionOrDefault(action)(message);
-  }
+export const min = (arg, limit, configOrMessage) => {
+  execute(arg => validation.min(arg, limit), arg, configOrMessage, msg.MIN);
+};
+
+export const max = (arg, limit, configOrMessage) => {
+  execute(arg => validation.max(arg, limit), arg, configOrMessage, msg.MAX);
 };
 
 export default {
@@ -78,5 +78,5 @@ export default {
   isBlank, notBlank,
   isNumber, isInteger,
   min, max,
-  setAction
+  setAction, actions
 }
